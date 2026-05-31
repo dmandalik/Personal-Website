@@ -10,18 +10,15 @@ const SOCIALS = [
 
 export function Contact() {
   return (
-    <footer id="contact" className="relative scroll-mt-24 border-t border-line py-20 sm:py-24">
+    <footer id="contact" className="relative scroll-mt-24 border-t border-line py-14 sm:py-16">
       <div className="shell relative z-10 text-center">
         <Reveal>
-          <p className="eyebrow">Get in touch</p>
-          <h2 className="mx-auto mt-5 max-w-2xl font-display text-headline font-normal text-fg">
-            Building something interesting? Let&apos;s talk.
+          <p className="eyebrow">Contact</p>
+          <h2 className="mx-auto mt-4 max-w-2xl font-display text-headline font-normal text-fg">
+            Want to get in touch? Let&apos;s Talk.
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-fg/55">
-            Open to internships and roles in ML, systems, and applied AI.
-          </p>
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <a
               href={`mailto:${profile.links.email}`}
               className="group flex items-center gap-2 rounded-xl bg-fg px-5 py-3 text-sm font-medium text-bg transition-transform hover:-translate-y-0.5"
@@ -31,7 +28,7 @@ export function Contact() {
             </a>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-2">
+          <div className="mt-6 flex items-center justify-center gap-2">
             {SOCIALS.map((s) => (
               <a
                 key={s.label}
@@ -47,7 +44,7 @@ export function Contact() {
           </div>
         </Reveal>
 
-        <p className="mt-16 font-mono text-xs text-fg/30">
+        <p className="mt-12 font-mono text-xs text-fg/30">
           © {new Date().getFullYear()} {profile.name}. Built with Next.js + Tailwind.
         </p>
       </div>
