@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Procedural Plasma Tree — candidate</title>
+<style>
+  :root { --bg:#05070d; --fg:#f4f4f5; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; }
+  body {
+    background:
+      radial-gradient(circle at 20% 10%, rgba(59,130,246,.13), transparent 26rem),
+      radial-gradient(circle at 85% 30%, rgba(168,85,247,.11), transparent 28rem),
+      linear-gradient(180deg,#05070d 0%,#070913 46%,#05070d 100%);
+    color:var(--fg);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    overflow:hidden;
+  }
+  .wrap { position:relative; width:100vw; height:100vh; }
+  canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .badge {
+    position:absolute; left:24px; top:20px; z-index:5;
+    font-size:11px; letter-spacing:.28em; text-transform:uppercase;
+    color:#93c5fd; opacity:.8;
+  }
+  .hint {
+    position:absolute; left:24px; bottom:20px; z-index:5;
+    font-size:12px; color:#64748b;
+  }
+  /* floating detail card */
+  .card {
+    position:absolute; z-index:6; width:300px;
+    border:1px solid rgba(147,197,253,.18);
+    background:rgba(5,8,19,.82);
+    border-radius:16px; padding:22px;
+    backdrop-filter:blur(14px);
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+    opacity:0; transform:translateY(10px); transition:opacity .2s,transform .2s;
+    pointer-events:none;
+    right:40px; top:50%;
+  }
+  .card.show { opacity:1; transform:translateY(0); }
+  .card .eyebrow { font-size:11px; letter-spacing:.3em; text-transform:uppercase; font-weight:600; }
+  .card h3 { margin:14px 0 6px; font-size:20px; font-weight:600; line-height:1.3; color:#fafafa; }
+  .card .meta { font-size:13px; color:#94a3b8; line-height:1.7; }
+  .card .rule { height:1px; background:rgba(255,255,255,.1); margin:16px 0; }
+  .card p.desc { font-size:13px; line-height:1.7; color:#cbd5e1; margin:0; }
+  .card .tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; }
+  .card .tags span { font-size:11px; padding:5px 11px; border-radius:999px;
+    border:1px solid rgba(147,197,253,.14); background:rgba(147,197,253,.05); color:rgba(191,219,254,.8); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">Procedural · code-generated · interactive</div>
+  <canvas id="c"></canvas>
+  <div class="hint">Hover a branch tip. Add an experience = add one line of data.</div>
+  <div class="card" id="card">
+    <div class="eyebrow" id="c-eyebrow">Current</div>
+    <h3 id="c-title">Title</h3>
+    <div class="meta" id="c-meta">Role · Year</div>
+    <div class="rule"></div>
+    <p class="desc" id="c-desc">Description</p>
+    <div class="tags" id="c-tags"></div>
+  </div>
+</div>
+
+<script>
+// ---- DATA: this is the ONLY thing you edit to add an experience ----
+const EXPERIENCES = [
+  { id:"investcorp", title:"Investcorp x Cornell Generative AI", role:"AI Research", year:"2025–Present",
+    color:"#60a5fa", eyebrow:"Current",
+    desc:"Building and evaluating generative AI systems with a focus on reliability and applied workflows.",
+    tags:["LLMs","Evaluation","Python"] },
+  { id:"auv", title:"Cornell AUV", role:"Robotics Software", year:"2024",
+    color:"#34d399", eyebrow:"Robotics",
+    desc:"Perception and autonomy software for an autonomous underwater vehicle.",
+    tags:["ROS","Perception","C++"] },
+  { id:"weill", title:"Weill Cornell Computational Biology", role:"Research", year:"2024",
+    color:"#a78bfa", eyebrow:"Research",
+    desc:"Reproducible pipelines for analysis-heavy computational biology work.",
+    tags:["Pipelines","Data"] },
+  { id:"tumor", title:"Tumor Diagnosis", role:"ML / Vision", year:"2023",
+    color:"#f472b6", eyebrow:"AI",
+    desc:"Computer-vision models for medical image classification.",
+    tags:["PyTorch","CV"] },
+  { id:"deepfake", title:"Deep-Fake Ear", role:"ML Research", year:"2023",
+    color:"#22d3ee", eyebrow:"Research",
+    desc:"Audio deepfake detection research project.",
+    tags:["Audio","ML"] },
+  { id:"vt", title:"Virginia Tech Vision Lab", role:"Research Intern", year:"2022",
+    color:"#fbbf24", eyebrow:"Research",
+    desc:"Computer vision research, early exposure to applied ML systems.",
+    tags:["Vision","Python"] },
+  { id:"cpp", title:"C++ ML Library", role:"Systems / Personal", year:"2022",
+    color:"#fb923c", eyebrow:"Systems",
+    desc:"From-scratch machine-learning primitives built in modern C++.",
+    tags:["C++","From scratch"] },
+];
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W*DPR; canvas.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  buildTree();
+}
+window.addEventListener('resize', resize);
+
+// ---- seeded PRNG so the tree is deterministic ----
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+// ---- procedural tree generation (L-system-ish recursive growth) ----
+// produces an array of segments {x1,y1,x2,y2,depth,w} plus tip points
+let segments = [], tips = [];
+function buildTree(){
+  segments = []; tips = [];
+  const rnd = mulberry32(20250529);
+  const baseX = W*0.5, baseY = H*0.93;
+  const trunkLen = H*0.22;
+
+  // main trunk
+  grow(baseX, baseY, -Math.PI/2, trunkLen, 7, rnd, 0);
+
+  // assign the N farthest/highest tips to experiences
+  tips.sort((a,b)=> a.y - b.y); // higher (smaller y) first
+  // spread selection across x so labels don't stack
+  const chosen = [];
+  const pool = tips.slice(0, Math.min(tips.length, 40));
+  pool.sort((a,b)=>a.x-b.x);
+  for(let i=0;i<EXPERIENCES.length;i++){
+    const idx = Math.floor((i+0.5)/EXPERIENCES.length * pool.length);
+    chosen.push(Object.assign({}, pool[Math.min(idx,pool.length-1)], {exp:EXPERIENCES[i]}));
+  }
+  expTips = chosen;
+}
+
+function grow(x,y,angle,len,depth,rnd,seg){
+  if(depth<=0 || len<4) { tips.push({x,y}); return; }
+  // a slightly wavy segment
+  const steps = 3;
+  let px=x, py=y, a=angle;
+  for(let s=0;s<steps;s++){
+    a += (rnd()-0.5)*0.18;
+    const nx = px + Math.cos(a)*(len/steps);
+    const ny = py + Math.sin(a)*(len/steps);
+    segments.push({x1:px,y1:py,x2:nx,y2:ny,depth,w:depth*0.55});
+    px=nx; py=ny;
+  }
+  // branch into 2-3 children
+  const children = depth>4 ? 2 : (rnd()<0.7?2:3);
+  const spread = 0.42 + rnd()*0.3;
+  for(let i=0;i<children;i++){
+    const t = children===1?0:(i/(children-1))-0.5;
+    const na = a + t*spread*2 + (rnd()-0.5)*0.15 - 0.05; // bias upward
+    const nl = len*(0.68+rnd()*0.12);
+    grow(px,py,na,nl,depth-1,rnd,seg+1);
+  }
+}
+
+let expTips = [];
+let hoverId = null;
+let t0 = performance.now();
+
+function strokeSeg(s, color, widthMul, alpha, blur){
+  ctx.beginPath();
+  ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2);
+  ctx.lineWidth = Math.max(0.4, s.w*widthMul);
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = alpha;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = blur;
+  ctx.lineCap='round';
+  ctx.stroke();
+}
+
+function draw(now){
+  const t = (now - t0)/1000;
+  const pulse = 0.85 + Math.sin(t*1.1)*0.15;
+  ctx.clearRect(0,0,W,H);
+  ctx.globalCompositeOperation = 'lighter'; // additive glow
+
+  // which experience branch is hovered -> find its tip
+  let activeTip = expTips.find(e=>e.exp.id===hoverId);
+
+  // pass 1: wide faint aura (blue/violet)
+  for(const s of segments){
+    const col = s.x2 < W*0.5 ? '#3b82f6' : '#7c3aed';
+    strokeSeg(s, col, 2.4, 0.05*pulse, 18);
+  }
+  // pass 2: mid glow
+  for(const s of segments){
+    const col = s.x2 < W*0.5 ? '#60a5fa' : '#a78bfa';
+    strokeSeg(s, col, 1.1, 0.16*pulse, 10);
+  }
+  // pass 3: bright core
+  for(const s of segments){
+    strokeSeg(s, '#dbeafe', 0.35, 0.5, 4);
+  }
+
+  // experience nodes + labels
+  ctx.shadowBlur = 0;
+  for(const e of expTips){
+    const active = e.exp.id===hoverId;
+    const r = active?7:4.5;
+    // node glow
+    ctx.beginPath(); ctx.arc(e.x,e.y,r*2.4,0,7);
+    ctx.fillStyle = e.exp.color; ctx.globalAlpha = active?0.35:0.18;
+    ctx.shadowColor=e.exp.color; ctx.shadowBlur=active?26:14; ctx.fill();
+    // node core
+    ctx.beginPath(); ctx.arc(e.x,e.y,r,0,7);
+    ctx.fillStyle=e.exp.color; ctx.globalAlpha=1; ctx.shadowBlur=active?22:10; ctx.fill();
+    ctx.beginPath(); ctx.arc(e.x,e.y,r*0.45,0,7);
+    ctx.fillStyle='#fff'; ctx.globalAlpha=.95; ctx.shadowBlur=0; ctx.fill();
+
+    // label
+    const onLeft = e.x < W*0.5;
+    ctx.globalAlpha = active?1:0.78;
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = `${active?600:500} 14px Inter, sans-serif`;
+    ctx.textAlign = onLeft?'right':'left';
+    ctx.textBaseline='middle';
+    const lx = e.x + (onLeft?-14:14);
+    ctx.shadowColor='rgba(219,234,254,.5)'; ctx.shadowBlur=active?10:0;
+    // wrap title to <=22 chars
+    const words=e.exp.title.split(' '); const lines=[]; let cur='';
+    for(const w of words){const nx=cur?cur+' '+w:w; if(nx.length>22&&cur){lines.push(cur);cur=w;}else cur=nx;}
+    if(cur)lines.push(cur);
+    lines.slice(0,2).forEach((ln,i)=> ctx.fillText(ln, lx, e.y-6+i*17 - (lines.length-1)*8));
+    ctx.font='400 11px Inter, sans-serif'; ctx.fillStyle='#94a3b8'; ctx.shadowBlur=0;
+    ctx.fillText(e.exp.year, lx, e.y + (Math.min(lines.length,2))*17 - 4);
+  }
+
+  // highlight active branch path by redrawing nearby bright
+  if(activeTip){
+    ctx.globalCompositeOperation='lighter';
+    for(const s of segments){
+      const d = Math.hypot((s.x1+s.x2)/2-activeTip.x,(s.y1+s.y2)/2-activeTip.y);
+      if(d<140){ strokeSeg(s, activeTip.exp.color, 1.2, 0.5*(1-d/140), 16); }
+    }
+  }
+
+  ctx.globalCompositeOperation='source-over';
+  ctx.globalAlpha=1; ctx.shadowBlur=0;
+  requestAnimationFrame(draw);
+}
+
+// hover detection
+canvas.addEventListener('mousemove', ev=>{
+  const mx=ev.clientX, my=ev.clientY;
+  let best=null, bd=60;
+  for(const e of expTips){ const d=Math.hypot(e.x-mx,e.y-my); if(d<bd){bd=d;best=e;} }
+  const newId = best?best.exp.id:null;
+  if(newId!==hoverId){ hoverId=newId; updateCard(best); }
+});
+
+const card=document.getElementById('card');
+function updateCard(e){
+  if(!e){ card.classList.remove('show'); return; }
+  const x=e.exp;
+  document.getElementById('c-eyebrow').textContent=x.eyebrow;
+  document.getElementById('c-eyebrow').style.color=x.color;
+  document.getElementById('c-title').textContent=x.title;
+  document.getElementById('c-meta').innerHTML=`${x.role}<br>${x.year}`;
+  document.getElementById('c-desc').textContent=x.desc;
+  document.getElementById('c-tags').innerHTML=x.tags.map(t=>`<span>${t}</span>`).join('');
+  card.classList.add('show');
+}
+
+resize();
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

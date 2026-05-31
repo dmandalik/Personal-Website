@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Proposed Layout Mockup v2 — plasma</title>
+<style>
+  :root{
+    --ink:#03050b;
+    --ai:#facc15; --robotics:#a855f7; --systems:#5eead4; --research:#60a5fa;
+    --txt:#fafafa; --muted:#a1a1aa; --dim:#71717a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(820px 560px at 52% 60%, rgba(59,130,246,.12), transparent 60%),
+      radial-gradient(700px 520px at 70% 12%, rgba(168,85,247,.10), transparent 60%),
+      var(--ink);
+    color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:Georgia,"Times New Roman",serif;}
+  .wrap{max-width:1400px;margin:0 auto;padding:36px 48px 60px;}
+  .frameTag{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim);margin-bottom:24px;display:block;}
+
+  .exp{display:grid;grid-template-columns:280px 1fr 290px;gap:24px;align-items:center;}
+  .eyebrow{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#60a5fa;font-weight:600;margin-bottom:20px;}
+  h1.title{font-size:58px;line-height:1;font-weight:600;letter-spacing:-.02em;}
+  .blurb{margin-top:24px;font-size:16px;line-height:1.7;color:var(--muted);max-width:290px;}
+  .legend{margin-top:30px;display:flex;flex-direction:column;gap:12px;}
+  .legend div{display:flex;align-items:center;gap:11px;font-size:14px;color:#d4d4d8;}
+  .dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 8px currentColor;}
+  .resume{margin-top:34px;display:inline-flex;align-items:center;gap:13px;border:1px solid rgba(191,219,254,.16);
+    background:rgba(255,255,255,.015);padding:14px 22px;border-radius:10px;font-size:11px;font-weight:600;
+    letter-spacing:.22em;text-transform:uppercase;color:#dbeafe;}
+
+  .canvas{position:relative;}
+  svg.tree{display:block;width:100%;height:auto;overflow:visible;}
+
+  .card{border-radius:18px;border:1px solid rgba(250,204,21,.22);
+    background:linear-gradient(180deg, rgba(20,17,8,.92), rgba(8,8,12,.94));
+    padding:24px 24px 22px;backdrop-filter:blur(8px);box-shadow:0 30px 80px -30px rgba(250,204,21,.28);}
+  .card .cur{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--ai);font-weight:700;}
+  .card h3{font-family:Georgia,serif;font-size:22px;line-height:1.2;margin-top:11px;font-weight:600;}
+  .card .role{margin-top:13px;font-size:13.5px;color:#d4d4d8;}
+  .card .range{font-size:13.5px;color:var(--dim);}
+  .card hr{border:0;border-top:1px solid rgba(255,255,255,.08);margin:16px 0;}
+  .card p.body{font-size:13.5px;line-height:1.6;color:#a1a1aa;}
+  .chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-size:12px;color:#d4d4d8;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.03);}
+  .view{margin-top:18px;display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ai);font-weight:600;}
+
+  .insetWrap{margin-top:56px;display:grid;grid-template-columns:330px 320px;gap:60px;align-items:center;
+    border-top:1px solid rgba(255,255,255,.07);padding-top:44px;}
+  .insetCopy h2{font-family:Georgia,serif;font-size:30px;font-weight:600;line-height:1.15;}
+  .insetCopy p{margin-top:16px;color:var(--muted);font-size:15px;line-height:1.7;}
+  .insetCopy .pill{display:inline-block;margin-top:18px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:#86efac;border:1px solid rgba(134,239,172,.25);border-radius:999px;padding:6px 14px;background:rgba(134,239,172,.06);}
+  .phone{width:300px;border-radius:34px;border:1px solid rgba(255,255,255,.12);background:#03050b;padding:16px 16px 22px;box-shadow:0 40px 90px -40px rgba(0,0,0,.9);}
+  .phone .notch{width:90px;height:6px;border-radius:999px;background:#1c1f2b;margin:4px auto 16px;}
+  .phone .ph-eyebrow{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#60a5fa;font-weight:600;}
+  .phone .ph-title{font-family:Georgia,serif;font-size:24px;margin-top:6px;font-weight:600;}
+  .tl{margin-top:20px;position:relative;padding-left:24px;}
+  .tl::before{content:"";position:absolute;left:5px;top:6px;bottom:18px;width:2px;background:linear-gradient(180deg,var(--ai),var(--robotics),var(--research),var(--ai),var(--research));border-radius:2px;}
+  .tl-item{position:relative;padding-bottom:18px;}
+  .tl-item .pdot{position:absolute;left:-19px;top:4px;width:11px;height:11px;border-radius:50%;border:2px solid var(--ink);}
+  .tl-item .yr{font-size:10px;color:var(--dim);letter-spacing:.1em;}
+  .tl-item .nm{font-size:14px;font-weight:600;margin-top:2px;color:#fafafa;line-height:1.25;}
+  .tl-item .rl{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+  .lbl-title{font-family:Georgia,serif;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="frameTag">Desktop &mdash; plasma tree (generated filaments, branches tinted by domain)</span>
+
+  <div class="exp">
+    <div>
+      <p class="eyebrow">Experience</p>
+      <h1 class="title serif">My Journey</h1>
+      <p class="blurb">A timeline of projects, research, and experiences that shaped my path in AI, robotics, and systems engineering.</p>
+      <div class="legend">
+        <div style="color:var(--research)"><span class="dot"></span><span style="color:#d4d4d8">Research</span></div>
+        <div style="color:var(--robotics)"><span class="dot"></span><span style="color:#d4d4d8">Robotics</span></div>
+        <div style="color:var(--systems)"><span class="dot"></span><span style="color:#d4d4d8">Systems / Engineering</span></div>
+        <div style="color:var(--ai)"><span class="dot"></span><span style="color:#d4d4d8">AI / ML</span></div>
+      </div>
+      <a class="resume">&#x2193;&nbsp; View Full Resume</a>
+    </div>
+
+    <div class="canvas">
+      <svg class="tree" id="tree" viewBox="0 0 620 780" aria-hidden="true">
+        <defs>
+          <filter id="glowS" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="2.2"/></filter>
+          <filter id="glowL" x="-160%" y="-160%" width="420%" height="420%"><feGaussianBlur stdDeviation="9"/></filter>
+          <radialGradient id="base" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#bcd4ff" stop-opacity=".55"/>
+            <stop offset="45%" stop-color="#3b82f6" stop-opacity=".25"/>
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="300" cy="744" rx="150" ry="60" fill="url(#base)"/>
+        <g id="plasma"></g>
+        <g id="overlay"></g>
+      </svg>
+    </div>
+
+    <div>
+      <div class="card">
+        <p class="cur">Current</p>
+        <h3>Investcorp &times; Cornell Generative AI</h3>
+        <p class="role">Software / AI Intern</p>
+        <p class="range">May 2025 &ndash; Present</p>
+        <hr/>
+        <p class="body">Building AI systems to understand and automate treasury operations by processing and analyzing complex financial emails.</p>
+        <div class="chips"><span class="chip">Python</span><span class="chip">LLM</span><span class="chip">NLP</span><span class="chip">LangChain</span><span class="chip">Streamlit</span></div>
+        <div class="view">&rarr;&nbsp; View Project</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insetWrap">
+    <div class="insetCopy">
+      <span class="frameTag">Mobile &amp; default view</span>
+      <h2 class="serif">One data model,<br/>two renderers.</h2>
+      <p>The linear timeline is the source of truth &mdash; instant, scannable in seconds, what every phone and rushed recruiter sees. The tree is a desktop-only enhancement on the same data.</p>
+      <span class="pill">No hover required &middot; fully accessible</span>
+    </div>
+    <div class="phone">
+      <div class="notch"></div>
+      <p class="ph-eyebrow">Experience</p>
+      <p class="ph-title">My Journey</p>
+      <div class="tl">
+        <div class="tl-item"><span class="pdot" style="background:var(--ai)"></span><span class="yr">2026 &middot; Current</span><div class="nm">Investcorp &times; Cornell Generative AI</div><div class="rl">Software / AI Intern</div></div>
+        <div class="tl-item"><span class="pdot" style="background:var(--systems)"></span><span class="yr">2026</span><div class="nm">C++ ML Library</div><div class="rl">Systems / Learning</div></div>
+        <div class="tl-item"><span class="pdot" style="background:var(--robotics)"></span><span class="yr">2025</span><div class="nm">Cornell AUV</div><div class="rl">Robotics Engineer</div></div>
+        <div class="tl-item"><span class="pdot" style="background:var(--research)"></span><span class="yr">2025</span><div class="nm">Weill Cornell Comp. Bio Lab</div><div class="rl">Research Software / ML</div></div>
+        <div class="tl-item"><span class="pdot" style="background:var(--ai)"></span><span class="yr">2024</span><div class="nm">Multi-Model Tumor Diagnosis</div><div class="rl">ML / Medical AI</div></div>
+        <div class="tl-item"><span class="pdot" style="background:var(--research)"></span><span class="yr">2023</span><div class="nm">Virginia Tech Vision Lab</div><div class="rl">Research Assistant</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const NS="http://www.w3.org/2000/svg";
+// deterministic PRNG
+let seed=20260529;
+function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+function rr(a,b){return a+(b-a)*rnd();}
+
+// central trunk curve, t:0(base,bottom)->1(top). returns [x,y]
+function trunk(t){
+  // control points bottom->top
+  const pts=[[300,760],[292,640],[312,520],[296,420],[312,300],[326,190],[320,90],[322,30]];
+  const n=pts.length-1; const s=Math.min(t*n,n-1e-6); const i=Math.floor(s); const f=s-i;
+  const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(n,i+2)];
+  // catmull-rom
+  const cr=(a,b,c,d)=>0.5*((2*b)+(-a+c)*f+(2*a-5*b+4*c-d)*f*f+(-a+3*b-3*c+d)*f*f*f);
+  return [cr(p0[0],p1[0],p2[0],p3[0]),cr(p0[1],p1[1],p2[1],p3[1])];
+}
+function path(pts){return "M"+pts.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ");}
+function add(parent,d,stroke,w,op,blur){
+  const e=document.createElementNS(NS,"path");
+  e.setAttribute("d",d);e.setAttribute("fill","none");e.setAttribute("stroke",stroke);
+  e.setAttribute("stroke-width",w);e.setAttribute("stroke-linecap","round");
+  e.setAttribute("opacity",op);if(blur)e.setAttribute("filter",blur);parent.appendChild(e);
+}
+const plasma=document.getElementById("plasma");
+const COLORS=["#ffffff","#dbeafe","#bfdbfe","#93c5fd","#a5b4fc","#c4b5fd"];
+
+// ---- TRUNK: many filaments around central curve ----
+const N=46;
+for(let k=0;k<N;k++){
+  const spread=rr(2,30);                 // how far this filament drifts
+  const phase=rr(0,Math.PI*2);
+  const freq=rr(1.5,3.5);
+  const steps=26; const pts=[];
+  for(let j=0;j<=steps;j++){
+    const t=j/steps;
+    const [cx,cy]=trunk(t);
+    // envelope: tight at base & tip, wide in middle
+    const env=Math.sin(Math.PI*t);
+    const off=Math.sin(t*freq*Math.PI+phase)*spread*env + rr(-2,2);
+    pts.push([cx+off, cy + rr(-3,3)]);
+  }
+  const col=COLORS[Math.floor(rnd()*COLORS.length)];
+  const isCore=k<8;
+  add(plasma,path(pts),col,isCore?rr(1.0,1.7):rr(0.4,1.0), isCore?rr(.55,.85):rr(.12,.4), "url(#glowS)");
+}
+// outer aura glow
+{const a=[];for(let j=0;j<=24;j++){const [cx,cy]=trunk(j/24);a.push([cx,cy]);}
+ add(plasma,path(a),"#3b82f6",26,.18,"url(#glowL)");
+ add(plasma,path(a),"#8b5cf6",14,.16,"url(#glowL)");}
+
+// ---- BRANCHES: bundle of tapering filaments toward each node ----
+const NODES=[
+  {t:0.235, x:118, y:586, c:"#60a5fa", title:["Virginia Tech Vision Lab"], role:"Research Assistant", align:"end"}, //2023 research
+  {t:0.52,  x:108, y:330, c:"#a855f7", title:["Cornell AUV"], role:"Robotics Engineer", align:"end"},               //2025 robotics
+  {t:0.66,  x:104, y:212, c:"#60a5fa", title:["Weill Cornell","Comp. Biology Lab"], role:"Research Software / ML", align:"end"}, //2025 research
+  {t:0.40,  x:430, y:456, c:"#facc15", title:["Multi-Model Tumor Dx"], role:"ML / Medical AI", align:"start"},      //2024 ai
+  {t:0.31,  x:438, y:548, c:"#5eead4", title:["C++ ML Library"], role:"Systems / Learning", align:"start"},          //systems
+  {t:0.80,  x:520, y:128, c:"#facc15", title:["Investcorp × Cornell"], role:"Generative AI · AI Intern", align:"start", current:true} //2026 current
+];
+function hexMix(hex){return hex;}
+NODES.forEach(nd=>{
+  const [bx,by]=trunk(nd.t);            // branch base on trunk
+  const M=nd.current?13:9;
+  for(let k=0;k<M;k++){
+    const steps=18;const pts=[];
+    const bend=rr(-26,26);
+    const midx=(bx+nd.x)/2+bend, midy=(by+nd.y)/2+rr(-22,22);
+    for(let j=0;j<=steps;j++){
+      const t=j/steps;
+      // quadratic bezier base->mid->node + jitter that shrinks toward tip
+      const omt=1-t;
+      let x=omt*omt*bx+2*omt*t*midx+t*t*nd.x;
+      let y=omt*omt*by+2*omt*t*midy+t*t*nd.y;
+      const jit=(1-t)*rr(-6,6)*( .4+rnd());
+      x+=jit; y+=jit*0.6;
+      pts.push([x,y]);
+    }
+    const tipWhite=k<3;
+    add(plasma,path(pts), tipWhite?"#eaf2ff":nd.c, rr(0.5,1.4)*(nd.current?1.25:1), rr(.18,.5), "url(#glowS)");
+  }
+  // soft colored aura along branch
+  add(plasma,`M${bx} ${by} Q ${(bx+nd.x)/2} ${(by+nd.y)/2} ${nd.x} ${nd.y}`, nd.c, 9, .14, "url(#glowL)");
+});
+
+// ---- OVERLAY: nodes, labels, year ticks ----
+const overlay=document.getElementById("overlay");
+function txt(x,y,s,cls,fill,size,anchor,weight){
+  const e=document.createElementNS(NS,"text");
+  e.setAttribute("x",x);e.setAttribute("y",y);e.setAttribute("fill",fill);
+  e.setAttribute("font-size",size);if(anchor)e.setAttribute("text-anchor",anchor);
+  if(weight)e.setAttribute("font-weight",weight);if(cls)e.setAttribute("class",cls);
+  e.textContent=s;overlay.appendChild(e);
+}
+// year ticks faint
+[["2022",348,752],["2023",214,600],["2024",360,470],["2025",196,300],["2026",352,150]].forEach(([y,X,Y])=>{
+  const e=document.createElementNS(NS,"text");e.setAttribute("x",X);e.setAttribute("y",Y);
+  e.setAttribute("fill","#3a3f4a");e.setAttribute("font-size","18");e.setAttribute("font-family","Georgia,serif");
+  e.textContent=y;overlay.appendChild(e);
+});
+// foundations node
+function node(x,y,c,r,ring){
+  if(ring){const o=document.createElementNS(NS,"circle");o.setAttribute("cx",x);o.setAttribute("cy",y);
+    o.setAttribute("r",r+4);o.setAttribute("fill","none");o.setAttribute("stroke",c);o.setAttribute("stroke-width","1.4");o.setAttribute("opacity",".5");overlay.appendChild(o);}
+  const g=document.createElementNS(NS,"circle");g.setAttribute("cx",x);g.setAttribute("cy",y);g.setAttribute("r",r+3);
+  g.setAttribute("fill",c);g.setAttribute("opacity",".4");g.setAttribute("filter","url(#glowL)");overlay.appendChild(g);
+  const e=document.createElementNS(NS,"circle");e.setAttribute("cx",x);e.setAttribute("cy",y);e.setAttribute("r",r);
+  e.setAttribute("fill","#fff");e.setAttribute("stroke",c);e.setAttribute("stroke-width","2");overlay.appendChild(e);
+}
+const fb=trunk(0); node(fb[0],fb[1],"#60a5fa",5,false);
+txt(fb[0],fb[1]+26,"Foundations · CS @ Cornell",null,"#e5e7eb",13.5,"middle",600);
+
+NODES.forEach(nd=>{
+  node(nd.x,nd.y,nd.c,nd.current?6:5,nd.current);
+  const lx=nd.align==="end"?nd.x-16:nd.x+16;
+  let ly=nd.y-(nd.title.length>1?8:4);
+  nd.title.forEach((line,i)=>{txt(lx,ly+i*18,line,"lbl-title","#fafafa",14.5,nd.align,600);});
+  txt(lx,nd.y-(nd.title.length>1?8:4)+nd.title.length*18, nd.role, null,"#9ca3af",12,nd.align,null);
+});
+// connector dotted to card for current
+const inv=NODES.find(n=>n.current);
+add(overlay,`M${inv.x+8} ${inv.y} L 612 ${inv.y}`,"#facc15",1,.35,null);
+overlay.lastChild.setAttribute("stroke-dasharray","2 4");
+</script>
+</body>
+</html>

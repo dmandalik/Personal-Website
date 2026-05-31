@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Static render</title>
+<style>
+  html,body{margin:0;height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 20% 10%, rgba(59,130,246,.13), transparent 26rem),
+      radial-gradient(circle at 85% 30%, rgba(168,85,247,.11), transparent 28rem),
+      linear-gradient(180deg,#05070d 0%,#070913 46%,#05070d 100%);
+    overflow:hidden; font-family:Inter,system-ui,sans-serif;
+  }
+  canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .badge{position:absolute;left:24px;top:20px;z-index:5;font-size:11px;letter-spacing:.28em;
+    text-transform:uppercase;color:#93c5fd;opacity:.85;}
+  .card{position:absolute;right:40px;top:46%;z-index:6;width:300px;
+    border:1px solid rgba(147,197,253,.18);background:rgba(5,8,19,.82);border-radius:16px;
+    padding:22px;backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .card .eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;font-weight:600;color:#60a5fa;}
+  .card h3{margin:14px 0 6px;font-size:20px;font-weight:600;line-height:1.3;color:#fafafa;}
+  .card .meta{font-size:13px;color:#94a3b8;line-height:1.7;}
+  .card .rule{height:1px;background:rgba(255,255,255,.1);margin:16px 0;}
+  .card p{font-size:13px;line-height:1.7;color:#cbd5e1;margin:0;}
+  .card .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;}
+  .card .tags span{font-size:11px;padding:5px 11px;border-radius:999px;
+    border:1px solid rgba(147,197,253,.14);background:rgba(147,197,253,.05);color:rgba(191,219,254,.85);}
+</style>
+</head>
+<body>
+<div class="badge" id="badge">Procedural · code-generated</div>
+<canvas id="c"></canvas>
+<div class="card">
+  <div class="eyebrow">Current</div>
+  <h3>Investcorp x Cornell Generative AI</h3>
+  <div class="meta">AI Research<br>2025–Present</div>
+  <div class="rule"></div>
+  <p>Building and evaluating generative AI systems with a focus on reliability and applied workflows.</p>
+  <div class="tags"><span>LLMs</span><span>Evaluation</span><span>Python</span></div>
+</div>
+<script>
+const EXP=[
+ {t:"Investcorp x Cornell",y:"2025–Present",c:"#60a5fa"},
+ {t:"Cornell AUV",y:"2024",c:"#34d399"},
+ {t:"Weill Cornell CompBio",y:"2024",c:"#a78bfa"},
+ {t:"Tumor Diagnosis",y:"2023",c:"#f472b6"},
+ {t:"Deep-Fake Ear",y:"2023",c:"#22d3ee"},
+ {t:"Virginia Tech Vision Lab",y:"2022",c:"#fbbf24"},
+ {t:"C++ ML Library",y:"2022",c:"#fb923c"},
+];
+const c=document.getElementById('c');const ctx=c.getContext('2d');
+const DPR=Math.min(devicePixelRatio||1,2);
+const W=innerWidth,H=innerHeight;
+c.width=W*DPR;c.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let segs=[],tips=[];
+const r=rng(20250529);
+const UP=-Math.PI/2;
+function clampUp(a){ // keep branches pointing in the upper hemisphere
+ const lo=UP-1.15, hi=UP+1.15;
+ return Math.max(lo,Math.min(hi,a));
+}
+function grow(x,y,a,len,depth){
+ if(depth<=0||len<5){tips.push({x,y});return;}
+ const steps=3;let px=x,py=y,ang=a;
+ for(let s=0;s<steps;s++){ang+=(r()-0.5)*0.14;ang=clampUp(ang);const nx=px+Math.cos(ang)*(len/steps),ny=py+Math.sin(ang)*(len/steps);segs.push({x1:px,y1:py,x2:nx,y2:ny,w:depth*0.6});px=nx;py=ny;}
+ const ch=depth>4?2:(r()<0.6?2:3),spread=0.34+r()*0.26;
+ for(let i=0;i<ch;i++){const tt=ch===1?0:(i/(ch-1))-0.5;
+   // pull each child back toward straight-up so the canopy stays balanced
+   const na=clampUp(UP*0.35+ang*0.65+tt*spread*2+(r()-0.5)*0.12);
+   grow(px,py,na,len*(0.72+r()*0.1),depth-1);}
+}
+function seg(s,col,wm,al,bl){ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.lineWidth=Math.max(0.4,s.w*wm);ctx.strokeStyle=col;ctx.globalAlpha=al;ctx.shadowColor=col;ctx.shadowBlur=bl;ctx.lineCap='round';ctx.stroke();}
+function render(){
+grow(W*0.5,H*0.96,UP,H*0.3,8);
+tips.sort((a,b)=>a.x-b.x);
+const pool=tips.slice();const chosen=[];
+for(let i=0;i<EXP.length;i++){const idx=Math.floor((i+0.5)/EXP.length*pool.length);chosen.push(Object.assign({},pool[Math.min(idx,pool.length-1)],{e:EXP[i]}));}
+ctx.clearRect(0,0,W,H);
+ctx.globalCompositeOperation='lighter';
+for(const s of segs)seg(s,s.x2<W*0.5?'#3b82f6':'#7c3aed',3.0,0.10,22);
+for(const s of segs)seg(s,s.x2<W*0.5?'#60a5fa':'#a78bfa',1.4,0.28,12);
+for(const s of segs)seg(s,'#dbeafe',0.5,0.7,5);
+ctx.shadowBlur=0;
+for(const o of chosen){
+ const onL=o.x<W*0.5;
+ ctx.beginPath();ctx.arc(o.x,o.y,11,0,7);ctx.fillStyle=o.e.c;ctx.globalAlpha=0.2;ctx.shadowColor=o.e.c;ctx.shadowBlur=16;ctx.fill();
+ ctx.beginPath();ctx.arc(o.x,o.y,4.5,0,7);ctx.globalAlpha=1;ctx.shadowBlur=10;ctx.fill();
+ ctx.beginPath();ctx.arc(o.x,o.y,2,0,7);ctx.fillStyle='#fff';ctx.shadowBlur=0;ctx.fill();
+ ctx.globalAlpha=0.9;ctx.fillStyle='#f8fafc';ctx.font='500 13px Inter,sans-serif';ctx.textAlign=onL?'right':'left';ctx.textBaseline='middle';
+ ctx.fillText(o.e.t,o.x+(onL?-13:13),o.y-5);
+ ctx.font='400 11px Inter,sans-serif';ctx.fillStyle='#94a3b8';ctx.fillText(o.e.y,o.x+(onL?-13:13),o.y+11);
+}
+ctx.globalCompositeOperation='source-over';
+}
+window.addEventListener('load',render);
+</script>
+</body>
+</html>
