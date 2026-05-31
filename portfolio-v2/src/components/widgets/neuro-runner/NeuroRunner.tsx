@@ -7,7 +7,8 @@
 // ---------------------------------------------------------------------------
 
 import { useRef, useState } from "react";
-import { BrainCircuit, Maximize2 } from "lucide-react";
+import { Github, Maximize2 } from "lucide-react";
+import { profile } from "@/data/profile";
 import { useNeuroRunner } from "./useNeuroRunner";
 import { Sparkline } from "./Sparkline";
 import { NeuroRunnerLab } from "./NeuroRunnerLab";
@@ -33,7 +34,16 @@ export function NeuroRunner() {
       <div className="flex items-center justify-between">
         <span className="eyebrow">Neuro-runner</span>
         <span className="flex items-center gap-2">
-          <BrainCircuit className="h-3.5 w-3.5 text-fg/30" strokeWidth={1.5} />
+          <a
+            href={profile.links.neuroRunner}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-fg/30 transition-colors hover:text-fg"
+            aria-label="View Neuro-Runner source on GitHub"
+            title="View source on GitHub"
+          >
+            <Github className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </a>
           <button
             type="button"
             onClick={() => setLabOpen(true)}
