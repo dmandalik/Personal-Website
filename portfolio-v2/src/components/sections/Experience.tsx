@@ -1,42 +1,165 @@
-import { experience } from "@/data/experience";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import Image from "next/image";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { experienceLogos, stackGroups } from "@/data/experience";
 import { Reveal } from "@/components/ui/Reveal";
+
+// A single floating mark: uniform height, auto aspect ratio, a glossy glaze
+// clipped to its own silhouette, and a hover/focus popup. Used for both the
+// company logos and the tech-stack icons so they share the exact same shine,
+// lift, and matte-grayscale behaviour.
+function LogoMark({
+  name,
+  src,
+  w,
+  h,
+  blurb,
+  href,
+  imgClass = "h-14 w-auto object-contain sm:h-16",
+}: {
+  name: string;
+  src: string;
+  w: number;
+  h: number;
+  blurb?: string;
+  href?: string;
+  imgClass?: string;
+}) {
+  const markClass =
+    "relative inline-flex rounded-md outline-none ring-accent/50 transition-transform duration-300 focus-visible:ring-2 group-hover:-translate-y-1.5 group-focus-within:-translate-y-1.5";
+  const mark = (
+    <>
+      <Image
+        src={src}
+        alt=""
+        width={w}
+        height={h}
+        className={`exp-logo ${imgClass}`}
+      />
+      {/* glossy glaze, clipped to the logo's own shape */}
+      <span
+        aria-hidden
+        className="exp-glaze"
+        style={{ WebkitMaskImage: `url(${src})`, maskImage: `url(${src})` }}
+      />
+    </>
+  );
+
+  return (
+    <li className="group relative flex justify-center">
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${name} — visit website`}
+          className={`${markClass} cursor-pointer`}
+        >
+          {mark}
+        </a>
+      ) : (
+        <span tabIndex={0} role="img" aria-label={name} className={markClass}>
+          {mark}
+        </span>
+      )}
+
+      {/* hover/focus popup — sits *below* the mark. The transparent pt-3 acts as
+          a hover bridge so moving the cursor down into the card doesn't drop the
+          hover, and pointer-events flip to auto while open so the link is
+          clickable. */}
+      <div className="pointer-events-none absolute left-1/2 top-full z-20 w-52 -translate-x-1/2 translate-y-1 pt-3 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
+        <div className="relative rounded-lg border border-line bg-bg/95 p-3 text-center shadow-glass backdrop-blur-xl">
+          <p className="text-sm font-semibold text-fg">{name}</p>
+          {blurb && (
+            <p className="mt-1 text-xs leading-relaxed text-fg/55">{blurb}</p>
+          )}
+          {href && (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-accent transition-colors hover:text-fg"
+            >
+              Visit site
+              <ArrowUpRight className="h-3 w-3" />
+            </a>
+          )}
+          {/* caret pointing up toward the mark */}
+          <span
+            aria-hidden
+            className="absolute bottom-full left-1/2 h-2 w-2 -translate-x-1/2 translate-y-1 rotate-45 border-l border-t border-line bg-bg/95"
+          />
+        </div>
+      </div>
+    </li>
+  );
+}
 
 export function Experience() {
   return (
-    <section id="experience" className="shell scroll-mt-24 border-t border-line py-16 sm:py-20">
-      <SectionHeading index="01" eyebrow="Where I've worked" title="Experience" />
+    <section
+      id="experience"
+      className="shell flex min-h-screen flex-col border-t border-line pb-12 pt-8 -scroll-mt-4"
+    >
+      {/* Section title on the left, jump-to-projects pinned to the far end. */}
+      <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+        <h2 className="font-display text-headline font-normal text-fg">
+          Experience
+        </h2>
+        <a
+          href="#work"
+          className="group flex shrink-0 items-center gap-2 rounded-lg bg-fg px-4 py-2.5 text-sm font-medium text-bg transition-transform hover:-translate-y-0.5"
+        >
+          View Projects
+          <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
+        </a>
+      </Reveal>
 
-      <ol className="relative">
-        {/* vertical rail */}
-        <span className="absolute left-[5px] top-2 bottom-2 w-px bg-line sm:left-[110px]" />
+      {/* Where I've worked — uniform, auto-wrapping company marks, each with the
+          glossy glaze and (matte-only) grayscale treatment. */}
+      <Reveal>
+        <h3 className="font-display text-2xl font-normal text-fg">Experience</h3>
+      </Reveal>
+      <Reveal className="mt-6">
+        <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16">
+          {experienceLogos.map((logo) => (
+            <LogoMark
+              key={logo.key}
+              name={logo.name}
+              src={logo.src}
+              w={logo.w}
+              h={logo.h}
+              blurb={logo.blurb}
+              href={logo.href}
+            />
+          ))}
+        </ul>
+      </Reveal>
 
-        {experience.map((role, i) => (
-          <Reveal key={`${role.org}-${role.period}`} delay={i * 0.06}>
-            <li className="relative grid gap-2 pb-10 pl-8 sm:grid-cols-[110px_1fr] sm:gap-6 sm:pl-0">
-              {/* period + dot */}
-              <div className="flex items-center gap-3 sm:block sm:pt-0.5 sm:text-right">
-                <span
-                  className="timeline-dot absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-bg sm:left-[105px]"
-                  style={{
-                    background: role.accent ?? "#6ea8fe",
-                    boxShadow: `0 0 12px ${role.accent ?? "#6ea8fe"}`,
-                  }}
+      {/* Technical Skills — grouped tech marks sharing the same shine. */}
+      <Reveal className="mt-10">
+        <h3 className="font-display text-2xl font-normal text-fg">
+          Technical Skills
+        </h3>
+      </Reveal>
+      <div className="mt-6 flex flex-col gap-7">
+        {stackGroups.map((group) => (
+          <Reveal key={group.title}>
+            <p className="eyebrow mb-4">{group.title}</p>
+            <ul className="flex flex-wrap items-center gap-x-10 gap-y-6">
+              {group.logos.map((logo) => (
+                <LogoMark
+                  key={logo.key}
+                  name={logo.name}
+                  src={logo.src}
+                  w={logo.w}
+                  h={logo.h}
+                  imgClass="h-10 w-auto object-contain sm:h-12"
                 />
-                <span className="font-mono text-sm text-fg/45">{role.period}</span>
-              </div>
-
-              <div className="sm:pl-8">
-                <h3 className="text-base font-semibold text-fg">{role.title}</h3>
-                <p className="text-sm text-fg/55">{role.org}</p>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-fg/60">
-                  {role.blurb}
-                </p>
-              </div>
-            </li>
+              ))}
+            </ul>
           </Reveal>
         ))}
-      </ol>
+      </div>
     </section>
   );
 }
