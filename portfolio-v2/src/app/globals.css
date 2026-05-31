@@ -88,6 +88,10 @@
 /* Solid accent for direct use (SVG fills, inline styles). */
 :root {
   --accent: rgb(var(--accent-rgb));
+  /* Snapshot of the *site* theme accent, resolved here at the root so it keeps
+     the site's value even inside subtrees that force their own data-theme
+     (e.g. the always-light map canvas). The map pin reads this. */
+  --pin-rgb: var(--accent-rgb);
 }
 
 * {
@@ -270,15 +274,17 @@ body {
   position: absolute;
   inset: 5px;
   border-radius: 9999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 2px rgba(8, 10, 15, 0.9), 0 0 8px rgba(110, 168, 254, 0.8);
+  background: rgb(var(--pin-rgb));
+  box-shadow: 0 0 0 2px rgba(8, 10, 15, 0.9), 0 0 8px rgb(var(--pin-rgb) / 0.8);
+  /* slow breathing pulse — colour follows the site theme via --pin-rgb */
+  animation: pin-dot-breathe 2.8s ease-in-out infinite;
 }
 .map-pin__ring {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: rgba(110, 168, 254, 0.5);
-  animation: pin-pulse 2.4s ease-out infinite;
+  background: rgb(var(--pin-rgb) / 0.5);
+  animation: pin-pulse 3s ease-out infinite;
 }
 @keyframes pin-pulse {
   0% {
@@ -288,6 +294,17 @@ body {
   100% {
     transform: scale(1.6);
     opacity: 0;
+  }
+}
+@keyframes pin-dot-breathe {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
   }
 }
 
@@ -434,4 +451,74 @@ body {
 [data-theme="iris"] .headshot-iris,
 [data-theme="cobalt"] .headshot-cobalt {
   display: block;
+}
+
+/* ============================================================================
+   EXPERIENCE LOGOS
+   Floating, uniform-height marks. Full colour by default; the matte theme is
+   the only one that desaturates them (to stay strictly B&W), lifting back to
+   colour on hover/focus. Every mark also carries a glossy "glaze" sheen that is
+   masked to the logo's own silhouette so the shine hugs the shape, not a box.
+   ========================================================================== */
+.exp-logo {
+  transition: filter 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+}
+[data-theme="matte"] .exp-logo {
+  filter: grayscale(1);
+  opacity: 0.82;
+}
+[data-theme="matte"] .group:hover .exp-logo,
+[data-theme="matte"] .group:focus-within .exp-logo {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+/* Glossy seal sweep, clipped to the logo silhouette via a per-logo mask
+   (mask-image is set inline from the logo src). */
+.exp-glaze {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Bright diagonal glass streak + a softer top-corner highlight. The 200%
+     width lets the streak sweep across on hover. */
+  background:
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0.35) 42%,
+      rgba(255, 255, 255, 0.95) 50%,
+      rgba(255, 255, 255, 0.35) 58%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.12) 22%,
+      rgba(255, 255, 255, 0) 46%
+    );
+  background-size: 220% 100%, 100% 100%;
+  background-position: 150% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  mix-blend-mode: screen;
+  opacity: 1;
+  transition: background-position 0.7s ease;
+}
+/* Sweep the bright streak across the logo on hover/focus. */
+.group:hover .exp-glaze,
+.group:focus-within .exp-glaze {
+  background-position: -60% 0, 0 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .exp-logo {
+    transition: none;
+  }
+  .exp-glaze {
+    transition: none;
+  }
 }

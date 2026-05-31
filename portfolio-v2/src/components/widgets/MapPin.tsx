@@ -12,10 +12,10 @@ const VIEWS = [
   { id: "campus", label: "Campus", center: [42.4534, -76.4735] as [number, number], zoom: 15 },
   { id: "ithaca", label: "Ithaca", center: [42.4396, -76.4966] as [number, number], zoom: 12 },
   { id: "region", label: "Region", center: [42.68, -76.7] as [number, number], zoom: 8 },
-  { id: "ny", label: "NY", center: [42.95, -75.5] as [number, number], zoom: 6 },
+  { id: "ny", label: "NY", center: [42.9, -75.8] as [number, number], zoom: 5 },
 ] as const;
 
-const INITIAL = VIEWS[3]; // open at the NY level
+const INITIAL = VIEWS[3]; // open zoomed out to the whole of NY state
 
 // Clean, light grayscale basemap for context. State polygons are drawn on top
 // (gray fill + bold black outline) so boundaries read clearly at any zoom.

@@ -9,7 +9,7 @@ export const profile = {
   subtitle: "CS / ECE @ Cornell",
   // One-line value proposition. Keep it sharp — this is the 7-second test.
   tagline:
-    "I build ML systems, robotics software, and applied AI — from C++ tensor libraries to autonomous underwater vehicles.",
+    "I enjoy building robotics and integrated AI/ML systems that work under real constraints. Check out some of my work below.",
   // Keyword chips in the hero. Recruiters scan these for stack matches.
   stack: ["PyTorch", "C++", "Python", "CUDA", "AWS", "ROS", "LLMs", "React"],
   location: "Ithaca, NY",
@@ -27,7 +27,7 @@ export const profile = {
   links: {
     email: "dhruvm2310@gmail.com",
     github: "https://github.com/dmandalik",
-    linkedin: "https://www.linkedin.com/in/dhruv-mandalik",
+    linkedin: "https://www.linkedin.com/in/dhruv-mandalik-39864b244/",
     resume: "/resume.pdf",
     neuroRunner: "https://github.com/dmandalik/neuro-runner",
   },

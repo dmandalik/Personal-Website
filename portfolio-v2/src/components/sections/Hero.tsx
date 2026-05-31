@@ -1,8 +1,6 @@
 import Image from "next/image";
 import { ArrowDown, Github, Mail } from "lucide-react";
 import { profile } from "@/data/profile";
-import { skills, about } from "@/data/skills";
-import { Reveal } from "@/components/ui/Reveal";
 import { MapPin } from "@/components/widgets/MapPin";
 import { LocalClock } from "@/components/widgets/LocalClock";
 import { NeuroRunner } from "@/components/widgets/neuro-runner/NeuroRunner";
@@ -48,10 +46,10 @@ export function Hero() {
             style={{ animationDelay: "0.22s" }}
           >
             <a
-              href="#work"
+              href="#experience"
               className="group flex items-center gap-2 rounded-lg bg-fg px-4 py-2.5 text-sm font-medium text-bg transition-transform hover:-translate-y-0.5"
             >
-              View work
+              View Experience
               <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
             </a>
             <a
@@ -116,39 +114,6 @@ export function Hero() {
           <MapPin />
           <LocalClock />
           <NeuroRunner />
-        </div>
-
-        {/* How I work + skills — the "about" detail, below the fold. */}
-        <div className="mt-14 grid gap-10 border-t border-line pt-12 lg:grid-cols-[1.2fr_1fr]">
-          <Reveal>
-            <p className="eyebrow">A bit about me</p>
-            <h2 className="mt-4 font-display text-3xl font-normal leading-tight text-fg sm:text-4xl">
-              How I work
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-fg/70">{about}</p>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <div className="glass p-6">
-              <ul className="space-y-5">
-                {skills.map((group) => (
-                  <li key={group.label}>
-                    <p className="eyebrow mb-2.5">{group.label}</p>
-                    <ul className="flex flex-wrap gap-1.5">
-                      {group.items.map((item) => (
-                        <li
-                          key={item}
-                          className="rounded-md border border-line bg-fg/[0.03] px-2.5 py-1 font-mono text-xs text-fg/65"
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
         </div>
       </div>
     </section>
