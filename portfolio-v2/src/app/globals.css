@@ -1,0 +1,437 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   THEME PALETTES
+   Every surface reads from these tokens. Tailwind maps bg/fg/accent/iris/line
+   to the *-rgb triplets (see tailwind.config.ts) so opacity utilities work.
+   Switch the whole site by setting data-theme on <html>.
+   ========================================================================== */
+:root,
+[data-theme="dark"] {
+  --bg-rgb: 8 10 15; /* cool slate-black */
+  --fg-rgb: 231 233 238;
+  --accent-rgb: 110 168 254;
+  --accent-soft-rgb: 138 180 255;
+  --accent-deep-rgb: 59 111 224;
+  --iris-rgb: 167 139 250;
+  --line: rgba(255, 255, 255, 0.08);
+  --vignette: rgba(146, 165, 196, 0.06);
+  --shadow-glass: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 20px 60px -25px rgba(0, 0, 0, 0.8);
+  --grain-opacity: 0.025;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg-rgb: 246 247 249; /* soft paper white */
+  --fg-rgb: 18 21 29;
+  --accent-rgb: 37 99 235;
+  --accent-soft-rgb: 59 111 224;
+  --accent-deep-rgb: 30 64 175;
+  --iris-rgb: 124 58 237;
+  --line: rgba(17, 20, 28, 0.12);
+  --vignette: rgba(40, 64, 120, 0.05);
+  --shadow-glass: 0 1px 0 0 rgba(255, 255, 255, 0.7) inset,
+    0 20px 50px -28px rgba(20, 30, 60, 0.25);
+  --grain-opacity: 0.02;
+  color-scheme: light;
+}
+
+[data-theme="matte"] {
+  --bg-rgb: 18 18 18; /* matte black — flat, near-zero sheen */
+  --fg-rgb: 237 237 237;
+  /* "accent" is intentionally monochrome so the whole site stays B&W */
+  --accent-rgb: 242 242 242;
+  --accent-soft-rgb: 255 255 255;
+  --accent-deep-rgb: 168 168 168;
+  --iris-rgb: 198 198 198;
+  --line: rgba(255, 255, 255, 0.11);
+  --vignette: rgba(255, 255, 255, 0.035);
+  --shadow-glass: 0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 20px 60px -25px rgba(0, 0, 0, 0.9);
+  --grain-opacity: 0.05; /* a touch more grain for the matte texture */
+  color-scheme: dark;
+}
+
+[data-theme="iris"] {
+  --bg-rgb: 18 8 34; /* richer violet-black */
+  --fg-rgb: 240 233 252;
+  --accent-rgb: 168 130 255;
+  --accent-soft-rgb: 201 178 255;
+  --accent-deep-rgb: 124 76 240;
+  --iris-rgb: 201 178 255;
+  --line: rgba(206, 178, 255, 0.14);
+  --vignette: rgba(160, 110, 255, 0.22);
+  --shadow-glass: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 20px 60px -25px rgba(34, 10, 70, 0.9);
+  --grain-opacity: 0.025;
+  color-scheme: dark;
+}
+
+[data-theme="cobalt"] {
+  --bg-rgb: 4 10 30; /* deeper, more saturated cobalt-black */
+  --fg-rgb: 224 233 252;
+  --accent-rgb: 64 120 255;
+  --accent-soft-rgb: 110 160 255;
+  --accent-deep-rgb: 30 84 240;
+  --iris-rgb: 110 160 255;
+  --line: rgba(150, 190, 255, 0.14);
+  --vignette: rgba(50, 110, 255, 0.24);
+  --shadow-glass: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 20px 60px -25px rgba(0, 8, 40, 0.9);
+  --grain-opacity: 0.025;
+  color-scheme: dark;
+}
+
+/* Solid accent for direct use (SVG fills, inline styles). */
+:root {
+  --accent: rgb(var(--accent-rgb));
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem; /* offset for the sticky nav on anchor jumps */
+}
+
+body {
+  /* Theme base + a faint vignette so it has depth without a hard gradient. */
+  background-color: rgb(var(--bg-rgb));
+  background-image: radial-gradient(
+    120% 90% at 50% -10%,
+    var(--vignette),
+    transparent 55%
+  );
+  background-attachment: fixed;
+  color: rgb(var(--fg-rgb));
+}
+
+/* Respect reduced-motion: kill non-essential animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  /* Frosted glass panel — the core surface of the site. */
+  .glass {
+    @apply rounded-xl2 border border-line bg-fg/[0.035] shadow-glass backdrop-blur-xl;
+  }
+
+  /* Monospace eyebrow label — the recurring "engineer" signature element. */
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.28em] text-fg/40;
+  }
+
+  /* Keyboard cap used in the nav + command palette hint. */
+  .kbd {
+    @apply inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-line bg-fg/5 px-1.5 font-mono text-[10px] text-fg/55;
+  }
+
+  /* Section shell with consistent horizontal padding + max width. */
+  .shell {
+    @apply mx-auto w-full max-w-shell px-6 sm:px-8;
+  }
+}
+
+@layer utilities {
+  /* Text that fades to the accent — used on the name + section numbers. */
+  .text-gradient {
+    @apply bg-gradient-to-br from-fg via-fg to-accent/70 bg-clip-text text-transparent;
+  }
+
+  /* A faint repeating grain so the dark bg isn't a dead flat fill. */
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: var(--grain-opacity, 0.025);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* Thin custom scrollbar to match the dark surface. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--fg-rgb) / 0.12);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--fg-rgb) / 0.22);
+  background-clip: padding-box;
+}
+
+::selection {
+  background: rgb(var(--accent-rgb) / 0.3);
+  color: rgb(var(--fg-rgb));
+}
+
+/* --- Leaflet map (Based-in widget) ------------------------------------------ */
+.map-canvas {
+  background: #11141c;
+}
+.map-canvas .leaflet-container {
+  background: inherit;
+  font-family: var(--font-mono), monospace;
+}
+/* Per-theme canvas background (shows while tiles stream in). */
+.map-canvas[data-theme="dark"] {
+  background: #11141c;
+}
+.map-canvas[data-theme="light"] {
+  background: #e8eaed;
+}
+.map-canvas[data-theme="satellite"] {
+  background: #0a0c12;
+}
+/* Lift the dark basemap so land masses + borders read against the card. */
+.map-canvas[data-theme="dark"] .leaflet-tile {
+  filter: brightness(1.55) contrast(1.08) saturate(1.15);
+}
+/* Mute the default attribution so it reads as a quiet footnote. */
+.map-canvas .leaflet-control-attribution {
+  background: rgba(8, 10, 15, 0.7);
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 8px;
+  padding: 0 4px;
+  backdrop-filter: blur(4px);
+}
+.map-canvas .leaflet-control-attribution a {
+  color: rgba(146, 165, 196, 0.6);
+}
+/* Dark zoom controls. */
+.map-canvas .leaflet-control-zoom {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  overflow: hidden;
+  border-radius: 6px;
+}
+.map-canvas .leaflet-control-zoom a {
+  background: rgba(8, 10, 15, 0.8);
+  color: rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+}
+.map-canvas .leaflet-control-zoom a:hover {
+  background: rgba(110, 168, 254, 0.18);
+  color: #fff;
+}
+/* Light-tile variant — flip the controls so they read on a pale basemap. */
+.map-canvas[data-theme="light"] .leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.78);
+  color: rgba(20, 24, 32, 0.55);
+}
+.map-canvas[data-theme="light"] .leaflet-control-attribution a {
+  color: rgba(37, 99, 235, 0.8);
+}
+.map-canvas[data-theme="light"] .leaflet-control-zoom {
+  border-color: rgba(20, 24, 32, 0.12);
+}
+.map-canvas[data-theme="light"] .leaflet-control-zoom a {
+  background: rgba(255, 255, 255, 0.85);
+  color: rgba(20, 24, 32, 0.7);
+  border-bottom-color: rgba(20, 24, 32, 0.1);
+}
+.map-canvas[data-theme="light"] .leaflet-control-zoom a:hover {
+  background: rgba(37, 99, 235, 0.14);
+  color: #0b1020;
+}
+
+/* Pulsing location marker. */
+.map-pin {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.map-pin__dot {
+  position: absolute;
+  inset: 5px;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px rgba(8, 10, 15, 0.9), 0 0 8px rgba(110, 168, 254, 0.8);
+}
+.map-pin__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgba(110, 168, 254, 0.5);
+  animation: pin-pulse 2.4s ease-out infinite;
+}
+@keyframes pin-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Tooltip styling. */
+.leaflet-tooltip.map-tip {
+  background: rgba(8, 10, 15, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cfe0ff;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  padding: 2px 6px;
+  box-shadow: none;
+  backdrop-filter: blur(4px);
+}
+.leaflet-tooltip.map-tip::before {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ============================================================================
+   STATUS LED — sits beside the wordmark, pulses in the active accent colour to
+   signal the page is live and everything is operational.
+   ========================================================================== */
+.status-led {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent), 0 0 2px var(--accent);
+  animation: led-blink 2.6s ease-in-out infinite;
+}
+@keyframes led-blink {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 7px var(--accent), 0 0 3px var(--accent);
+  }
+  50% {
+    opacity: 0.28;
+    box-shadow: 0 0 2px var(--accent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-led {
+    animation: none;
+    opacity: 0.9;
+  }
+}
+
+/* ============================================================================
+   MATTE OVERRIDES
+   Neutralise the handful of inline / hard-coded colour accents so the theme
+   stays strictly black & white.
+   ========================================================================== */
+[data-theme="matte"] .timeline-dot {
+  background: rgb(var(--fg-rgb)) !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.22) !important;
+}
+[data-theme="matte"] .gh-streak {
+  color: rgb(var(--fg-rgb) / 0.6) !important;
+}
+[data-theme="matte"] .daynight-icon {
+  color: rgb(var(--fg-rgb) / 0.55) !important;
+}
+[data-theme="matte"] .status-live {
+  color: rgb(var(--fg-rgb) / 0.7) !important;
+}
+[data-theme="matte"] .status-live span span {
+  background-color: rgb(var(--fg-rgb)) !important;
+}
+/* Map stays a light basemap, so the pin goes dark to read against it. */
+[data-theme="matte"] .map-pin__dot {
+  background: #161616;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 0 8px rgba(0, 0, 0, 0.45);
+}
+[data-theme="matte"] .map-pin__ring {
+  background: rgba(20, 20, 20, 0.4);
+}
+
+/* Projects section — every per-project accent (cards + modal + diagram + status
+   badges) collapses to monochrome so the section reads strictly black & white. */
+[data-theme="matte"] .proj-wash {
+  background: radial-gradient(
+    120% 80% at 100% 0%,
+    rgba(255, 255, 255, 0.06),
+    transparent 60%
+  ) !important;
+}
+[data-theme="matte"] .proj-dot {
+  background: rgb(var(--fg-rgb)) !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.22) !important;
+}
+[data-theme="matte"] .proj-metric {
+  color: rgb(var(--fg-rgb) / 0.75) !important;
+}
+[data-theme="matte"] .status-badge {
+  color: rgb(var(--fg-rgb) / 0.6) !important;
+}
+[data-theme="matte"] .status-badge span {
+  background-color: rgb(var(--fg-rgb) / 0.6) !important;
+}
+[data-theme="matte"] .status-badge span span {
+  background-color: rgb(var(--fg-rgb) / 0.45) !important;
+}
+[data-theme="matte"] .proj-bar {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--fg-rgb) / 0.7),
+    transparent
+  ) !important;
+}
+[data-theme="matte"] .proj-cat {
+  color: rgb(var(--fg-rgb) / 0.7) !important;
+}
+[data-theme="matte"] .proj-demo {
+  background: rgb(var(--fg-rgb)) !important;
+}
+[data-theme="matte"] .proj-bullet {
+  color: rgb(var(--fg-rgb) / 0.7) !important;
+}
+[data-theme="matte"] .arch-stage {
+  border-color: rgb(var(--fg-rgb) / 0.22) !important;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--fg-rgb) / 0.06),
+    transparent
+  ) !important;
+  box-shadow: none !important;
+}
+[data-theme="matte"] .arch-chevron {
+  color: rgb(var(--fg-rgb) / 0.5) !important;
+}
+
+/* ============================================================================
+   THEME-MATCHED HEADSHOTS
+   All variants render; only the one matching the active theme is shown.
+   ========================================================================== */
+.headshot-theme {
+  display: none;
+}
+[data-theme="dark"] .headshot-dark,
+[data-theme="light"] .headshot-light,
+[data-theme="matte"] .headshot-matte,
+[data-theme="iris"] .headshot-iris,
+[data-theme="cobalt"] .headshot-cobalt {
+  display: block;
+}
