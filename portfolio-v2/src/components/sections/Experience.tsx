@@ -1,7 +1,26 @@
+"use client";
+
 import Image from "next/image";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
 import { experienceLogos, stackGroups } from "@/data/experience";
 import { Reveal } from "@/components/ui/Reveal";
+
+// Subtle staggered reveal for a wall of marks: the container cascades its
+// children, each fading + rising a touch. Plays once per load when scrolled
+// into view (so a reload replays it). Kept gentle on purpose.
+const logoWall: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.05 } },
+};
+const logoItem: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 // A single floating mark: uniform height, auto aspect ratio, a glossy glaze
 // clipped to its own silhouette, and a hover/focus popup. Used for both the
@@ -45,7 +64,7 @@ function LogoMark({
   );
 
   return (
-    <li className="group relative flex justify-center">
+    <motion.li variants={logoItem} className="group relative flex justify-center">
       {href ? (
         <a
           href={href}
@@ -69,9 +88,26 @@ function LogoMark({
       <div className="pointer-events-none absolute left-1/2 top-full z-20 w-52 -translate-x-1/2 translate-y-1 pt-3 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
         <div className="relative rounded-lg border border-line bg-bg/95 p-3 text-center shadow-glass backdrop-blur-xl">
           <p className="text-sm font-semibold text-fg">{name}</p>
-          {blurb && (
-            <p className="mt-1 text-xs leading-relaxed text-fg/55">{blurb}</p>
-          )}
+          {blurb &&
+            (() => {
+              // Subtly emphasise the role title. Roles are written ahead of an
+              // em-dash ("Software Engineer — building …"); split on it so the
+              // role reads a touch brighter/medium-weight and the detail stays
+              // muted. Role-only blurbs (no dash, e.g. AIRLab) emphasise whole.
+              const [role, ...rest] = blurb.split(" — ");
+              const detail = rest.join(" — ");
+              return (
+                <p className="mt-1 text-xs leading-relaxed text-fg/55">
+                  <span className="font-medium text-fg/85">{role}</span>
+                  {detail && (
+                    <>
+                      {" — "}
+                      {detail}
+                    </>
+                  )}
+                </p>
+              );
+            })()}
           {href && (
             <a
               href={href}
@@ -90,7 +126,7 @@ function LogoMark({
           />
         </div>
       </div>
-    </li>
+    </motion.li>
   );
 }
 
@@ -119,21 +155,26 @@ export function Experience() {
       <Reveal>
         <h3 className="font-display text-2xl font-normal text-fg">Experience</h3>
       </Reveal>
-      <Reveal className="mt-6">
-        <ul className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16">
-          {experienceLogos.map((logo) => (
-            <LogoMark
-              key={logo.key}
-              name={logo.name}
-              src={logo.src}
-              w={logo.w}
-              h={logo.h}
-              blurb={logo.blurb}
-              href={logo.href}
-            />
-          ))}
-        </ul>
-      </Reveal>
+      <motion.ul
+        className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16"
+        variants={logoWall}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        {experienceLogos.map((logo) => (
+          <LogoMark
+            key={logo.key}
+            name={logo.name}
+            src={logo.src}
+            w={logo.w}
+            h={logo.h}
+            blurb={logo.blurb}
+            href={logo.href}
+            {...(logo.imgClass ? { imgClass: logo.imgClass } : {})}
+          />
+        ))}
+      </motion.ul>
 
       {/* Technical Skills — grouped tech marks sharing the same shine. */}
       <Reveal className="mt-10">
@@ -143,9 +184,17 @@ export function Experience() {
       </Reveal>
       <div className="mt-6 flex flex-col gap-7">
         {stackGroups.map((group) => (
-          <Reveal key={group.title}>
-            <p className="eyebrow mb-4">{group.title}</p>
-            <ul className="flex flex-wrap items-center gap-x-10 gap-y-6">
+          <div key={group.title}>
+            <Reveal>
+              <p className="eyebrow mb-4">{group.title}</p>
+            </Reveal>
+            <motion.ul
+              className="flex flex-wrap items-center gap-x-10 gap-y-6"
+              variants={logoWall}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-80px" }}
+            >
               {group.logos.map((logo) => (
                 <LogoMark
                   key={logo.key}
@@ -156,8 +205,8 @@ export function Experience() {
                   imgClass="h-10 w-auto object-contain sm:h-12"
                 />
               ))}
-            </ul>
-          </Reveal>
+            </motion.ul>
+          </div>
         ))}
       </div>
     </section>
