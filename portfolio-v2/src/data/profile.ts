@@ -6,10 +6,10 @@ export const profile = {
   name: "Dhruv Mandalik",
   initials: "DM",
   // Shown under the name in the hero.
-  subtitle: "CS / ECE @ Cornell",
+  subtitle: "CS + ECE @ Cornell",
   // One-line value proposition. Keep it sharp — this is the 7-second test.
   tagline:
-    "I enjoy building robotics and integrated AI/ML systems that work under real constraints. Check out some of my work below.",
+    "I enjoy building robotics software and integrated AI/ML systems that work under real constraints. Check out some of my work below.",
   // Keyword chips in the hero. Recruiters scan these for stack matches.
   stack: ["PyTorch", "C++", "Python", "CUDA", "AWS", "ROS", "LLMs", "React"],
   location: "Ithaca, NY",
@@ -17,8 +17,8 @@ export const profile = {
   geo: {
     label: "Ithaca, NY",
     place: "Cornell University",
-    lat: 42.4534,
-    lng: -76.4735,
+    lat: 42.4477, // McGraw Tower (the clock tower)
+    lng: -76.4849,
     timezone: "America/New_York",
   },
   // Used by the live GitHub pulse widget. Just the handle, no URL.

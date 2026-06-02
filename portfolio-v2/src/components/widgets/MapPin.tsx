@@ -8,10 +8,13 @@ import { profile } from "@/data/profile";
 const { geo } = profile;
 
 // View presets — start zoomed out at the NY-state level, toggle in to campus.
+// Campus/Ithaca/Region all recenter on the pin so zooming stays anchored to the
+// exact point; only NY keeps its own framing of the whole state.
+const PIN = [geo.lat, geo.lng] as [number, number];
 const VIEWS = [
-  { id: "campus", label: "Campus", center: [42.4534, -76.4735] as [number, number], zoom: 15 },
-  { id: "ithaca", label: "Ithaca", center: [42.4396, -76.4966] as [number, number], zoom: 12 },
-  { id: "region", label: "Region", center: [42.68, -76.7] as [number, number], zoom: 8 },
+  { id: "campus", label: "Campus", center: PIN, zoom: 16 },
+  { id: "ithaca", label: "Ithaca", center: PIN, zoom: 12 },
+  { id: "region", label: "Region", center: PIN, zoom: 8 },
   { id: "ny", label: "NY", center: [42.9, -75.8] as [number, number], zoom: 5 },
 ] as const;
 
