@@ -7,7 +7,7 @@
 // and be filled in later without touching any components.
 // ---------------------------------------------------------------------------
 
-export type ProjectStatus = "live" | "wip" | "mockup";
+export type ProjectStatus = "live" | "wip" | "mockup" | "published";
 export type ProjectCategory = "AI / ML" | "Systems" | "Robotics" | "Research";
 
 export type Project = {
@@ -25,6 +25,8 @@ export type Project = {
   links: {
     demo?: string; // hosted link — leave undefined for mockups
     code?: string;
+    paper?: string; // published paper / writeup — shown as "Read paper"
+    page?: string; // internal route to a dedicated project page (e.g. "/projects/foo")
   };
   // --- Case study (shown when the card is opened) ---
   problem: string;
@@ -36,6 +38,54 @@ export type Project = {
 };
 
 export const projects: Project[] = [
+  {
+    id: "cpp-ml-library",
+    title: "C++ ML Library",
+    blurb: "Tensors, reverse-mode autodiff, and training loops rebuilt from scratch.",
+    category: "Systems",
+    status: "wip",
+    accent: "#5eead4",
+    metric: "Targeting 3x+ over a naive baseline",
+    tags: ["C++", "CUDA", "Autodiff", "SIMD"],
+    links: { code: "https://github.com/dmandalik" },
+    problem:
+      "Python ML frameworks hide what actually happens during a backward pass. I'm rebuilding the primitives in C++ to understand tensors, autodiff, and the performance tradeoffs underneath the API.",
+    approach: [
+      "Tape-based reverse-mode automatic differentiation",
+      "Cache-friendly tensor storage with broadcasting",
+      "SIMD-optimized elementwise + matmul kernels",
+    ],
+    architecture: ["Tensor", "Op Graph (tape)", "Backward Pass", "Optimizer"],
+    results: [
+      "Forward + backward working for core ops",
+      "Benchmarking against a naive implementation next",
+    ],
+  },
+  {
+    id: "intern-radar",
+    title: "Intern Radar",
+    blurb: "A local-first engine that scans, scores, and ranks internship listings.",
+    category: "Systems",
+    status: "wip",
+    accent: "#f59e0b",
+    metric: "Greenhouse + Lever → ranked local DB",
+    tags: ["Python", "FastAPI", "Svelte", "SQLite"],
+    links: { code: "https://github.com/dmandalik/Intern-Radar" },
+    problem:
+      "Tracking internships in a spreadsheet means manually checking dozens of career pages and guessing which roles actually fit. I wanted a personal command center that scans sources, normalizes the data, and surfaces the strongest opportunities automatically.",
+    approach: [
+      "Scrapes Greenhouse, Lever, and custom career pages into a normalized SQLite store",
+      "Evidence-based role classification + eligibility parsing, with duplicate detection",
+      "Opportunity scoring that bubbles up hidden gems via configurable domain packs",
+      "CLI plus a Svelte dashboard with a review queue, notes, and multi-format export",
+    ],
+    architecture: ["Source Scan", "Normalize + Dedup", "Score + Classify", "CLI / Dashboard"],
+    results: [
+      "Local-first SQLite pipeline with scan history and persistent workflow states",
+      "Exports polished lists to CSV, JSON, XLSX, HTML, and Markdown",
+      "Runs entirely without paid APIs — generates its own search queries",
+    ],
+  },
   {
     id: "neuro-runner",
     title: "Neuro-Runner",
@@ -62,141 +112,31 @@ export const projects: Project[] = [
     ],
   },
   {
-    id: "ai-architecture",
-    title: "AI Architecture Engine",
-    blurb: "A from-scratch system for composing and serving model architectures.",
-    category: "AI / ML",
-    status: "wip",
-    accent: "#6ea8fe",
-    metric: "Designing the core graph + serving layer",
-    tags: ["Python", "PyTorch", "Inference", "Systems"],
-    links: {},
-    problem:
-      "Most model code mixes architecture definition, training, and serving into one tangle. I wanted a clean separation where an architecture is a declarative graph that can be trained, swapped, and served independently.",
-    approach: [
-      "Declarative graph IR describing layers, shapes, and data flow",
-      "Pluggable execution backends (eager for debugging, compiled for speed)",
-      "A thin serving layer that loads a graph + weights and exposes an endpoint",
-    ],
-    architecture: ["Graph IR", "Compiler / Planner", "Execution Backend", "Serving API"],
-    results: [
-      "In progress — building the graph IR and planner first",
-      "Goal: define, train, and serve an architecture from one spec file",
-    ],
-  },
-  {
-    id: "cpp-ml-library",
-    title: "C++ ML Library",
-    blurb: "Tensors, reverse-mode autodiff, and training loops rebuilt from scratch.",
-    category: "Systems",
-    status: "wip",
-    accent: "#5eead4",
-    metric: "Targeting 3x+ over a naive baseline",
-    tags: ["C++", "CUDA", "Autodiff", "SIMD"],
-    links: { code: "https://github.com/dmandalik" },
-    problem:
-      "Python ML frameworks hide what actually happens during a backward pass. I'm rebuilding the primitives in C++ to understand tensors, autodiff, and the performance tradeoffs underneath the API.",
-    approach: [
-      "Tape-based reverse-mode automatic differentiation",
-      "Cache-friendly tensor storage with broadcasting",
-      "SIMD-optimized elementwise + matmul kernels",
-    ],
-    architecture: ["Tensor", "Op Graph (tape)", "Backward Pass", "Optimizer"],
-    results: [
-      "Forward + backward working for core ops",
-      "Benchmarking against a naive implementation next",
-    ],
-  },
-  {
-    id: "cornell-auv",
-    title: "Cornell AUV — Perception",
-    blurb: "Real-time perception software for an autonomous underwater vehicle.",
-    category: "Robotics",
-    status: "wip",
-    accent: "#a855f7",
-    metric: "Real-time perception on embedded hardware",
-    tags: ["C++", "ROS", "Computer Vision", "Sensors"],
-    links: {},
-    problem:
-      "An AUV has to perceive and react underwater with limited compute and noisy sensors. The perception stack needs to be reliable and fast on embedded hardware.",
-    approach: [
-      "Sensor fusion across cameras and inertial data",
-      "Lightweight detection tuned for the embedded target",
-      "ROS nodes wired into the control loop",
-    ],
-    architecture: ["Sensors", "Fusion", "Detection", "Control Loop"],
-    results: [
-      "Contributing to the perception subsystem",
-      "Focus on real-time performance under compute limits",
-    ],
-  },
-  {
     id: "tumor-diagnosis",
-    title: "Multi-Model Tumor Diagnosis",
-    blurb: "Combining model perspectives for diagnosis support with readable outputs.",
-    category: "AI / ML",
-    status: "mockup",
-    accent: "#fde68a",
-    metric: "Model-fusion pipeline for medical imaging",
-    tags: ["Medical AI", "PyTorch", "Model Fusion", "Evaluation"],
-    links: {},
-    problem:
-      "Single models can be brittle on medical imaging. The goal was a fusion approach that combines multiple model perspectives while keeping outputs interpretable and responsibly evaluated.",
-    approach: [
-      "Train multiple complementary models",
-      "Fuse predictions with calibrated confidence",
-      "Surface readable, auditable outputs",
-    ],
-    architecture: ["Imaging Data", "Model Ensemble", "Fusion + Calibration", "Report"],
-    results: [
-      "Prototype fusion pipeline",
-      "Emphasis on evaluation limits and interpretability",
-    ],
-  },
-  {
-    id: "deepfake-detection",
-    title: "Deepfake Detection",
-    blurb: "Visual signals for detecting generated or manipulated imagery.",
-    category: "AI / ML",
-    status: "mockup",
-    accent: "#facc15",
-    metric: "Detection + evaluation harness",
-    tags: ["Computer Vision", "Deep Learning", "Detection"],
-    links: {},
-    problem:
-      "Generated imagery is increasingly convincing. I explored which visual signals reliably distinguish manipulated images, with attention to where detectors fail.",
-    approach: [
-      "Curate real vs. generated datasets",
-      "Train detectors on frequency + spatial features",
-      "Stress-test against unseen generators",
-    ],
-    architecture: ["Image", "Feature Extraction", "Detector", "Confidence + Audit"],
-    results: [
-      "Exploratory detection models",
-      "Honest reporting of generalization limits",
-    ],
-  },
-  {
-    id: "comp-bio-tooling",
-    title: "Computational Biology Tooling",
-    blurb: "Research software + ML tooling for comp-bio workflows at Weill Cornell.",
+    title: "Brain Tumor Diagnosis",
+    blurb: "Published study benchmarking diversified AI techniques on MRI brain-tumor diagnosis under distribution shift.",
     category: "Research",
-    status: "mockup",
-    accent: "#60a5fa",
-    metric: "Reproducible ML pipelines for research",
-    tags: ["Research SW", "ML", "Pipelines", "Python"],
-    links: {},
+    status: "published",
+    accent: "#fde68a",
+    metric: "98.2% accuracy on unseen MRI scans",
+    tags: ["Medical AI", "CNN", "TensorFlow", "MRI"],
+    links: {
+      page: "/projects/brain-tumor-diagnosis",
+      paper: "/papers/brain-tumor-diagnosis.pdf",
+    },
     problem:
-      "Research workflows break when tooling isn't reproducible or maintainable. I built software and ML tooling where correctness and clarity matter as much as results.",
+      "Up to 10% of brain or spinal-cord tumors are initially misdiagnosed, and a single model trained on one MRI dataset tends to collapse under distribution shift. The goal was a robust approach that holds up on scans it has never seen.",
     approach: [
-      "Reproducible, versioned data pipelines",
-      "ML tooling wrapped for researcher use",
-      "Tests + docs so results are trustworthy",
+      "Trained on three distinct Kaggle MRI datasets, then tested on a fully separate set to stress distribution shift",
+      "Built and compared diversified models: logistic regression, an MLP, and a TensorFlow/Keras CNN",
+      "Combined weaker classifiers via multiplicative weight update and boosting",
+      "Resized scans to 150×150, normalized pixels, and evaluated with cross-validation",
     ],
-    architecture: ["Raw Data", "Pipeline", "ML Models", "Results"],
+    architecture: ["MRI Datasets", "Preprocessing", "Diversified Models", "Unseen-Set Eval"],
     results: [
-      "Tooling used in active research workflows",
-      "Reproducibility and maintainability as first-class goals",
+      "CNN generalized best at 98.2% accuracy on unseen scans — vs 78.6% (LR) and 74.9% (MLP)",
+      "Aggregation lifted the classical models: boosting 86.5%, multiplicative weight update 83.8%",
+      "Published in the Journal of Student Research (Vol. 12, Issue 4, 2023)",
     ],
   },
 ];

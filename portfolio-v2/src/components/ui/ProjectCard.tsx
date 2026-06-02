@@ -1,8 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUpRight, Github, MoveRight } from "lucide-react";
-import type { Project } from "@/data/projects";
+import type { Project, ProjectCategory } from "@/data/projects";
 import { StatusBadge } from "./StatusBadge";
+
+// Per-category accent for the classification dot. Collapses to monochrome under
+// the matte theme via the `[data-theme="matte"] .proj-dot` override in globals.css.
+const CATEGORY_DOT: Record<ProjectCategory, string> = {
+  Systems: "#38bdf8", // cyan
+  "AI / ML": "#a78bfa", // violet
+  Robotics: "#fb923c", // orange
+  Research: "#34d399", // emerald
+};
 
 // A glass case-study card. Clicking the body opens the full case study; the
 // Demo / Code buttons are independent links that stop propagation.
@@ -17,21 +27,15 @@ export function ProjectCard({
     <article
       onClick={onOpen}
       className="group glass relative flex cursor-pointer flex-col overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1 hover:border-fg/15"
-      style={{ ["--c" as string]: project.accent }}
     >
-      {/* accent wash on hover */}
-      <div
-        className="proj-wash pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: `radial-gradient(120% 80% at 100% 0%, ${project.accent}1f, transparent 60%)`,
-        }}
-      />
-
       <div className="relative flex items-start justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <span
             className="proj-dot h-2.5 w-2.5 rounded-full"
-            style={{ background: project.accent, boxShadow: `0 0 12px ${project.accent}` }}
+            style={{
+              background: CATEGORY_DOT[project.category],
+              boxShadow: `0 0 8px ${CATEGORY_DOT[project.category]}80`,
+            }}
           />
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-fg/45">
             {project.category}
@@ -41,32 +45,38 @@ export function ProjectCard({
       </div>
 
       <h3 className="relative mt-5 font-display text-2xl font-normal text-fg">{project.title}</h3>
-      <p className="relative mt-2 text-sm leading-relaxed text-fg/60">{project.blurb}</p>
 
-      {/* metric */}
-      <p
-        className="proj-metric relative mt-4 flex items-center gap-2 text-sm font-medium"
-        style={{ color: project.accent }}
-      >
-        <MoveRight className="h-4 w-4" />
-        {project.metric}
-      </p>
-
-      {/* tags */}
-      <ul className="relative mt-5 flex flex-wrap gap-1.5">
+      {/* tech stack — surfaced right under the name */}
+      <ul className="relative mt-3 flex flex-wrap gap-1.5">
         {project.tags.map((t) => (
           <li
             key={t}
-            className="rounded-md border border-line bg-fg/[0.03] px-2 py-0.5 font-mono text-[10px] text-fg/55"
+            className="rounded-md border border-fg/20 bg-fg/[0.07] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-fg/85"
           >
             {t}
           </li>
         ))}
       </ul>
 
+      <p className="relative mt-3 text-sm leading-relaxed text-fg/60">{project.blurb}</p>
+
+      {/* metric */}
+      <p className="relative mt-4 flex items-center gap-2 text-sm font-medium text-fg/70">
+        <MoveRight className="h-4 w-4" />
+        {project.metric}
+      </p>
+
       {/* footer links */}
       <div className="relative mt-6 flex items-center gap-3 border-t border-line pt-4">
-        {project.links.demo ? (
+        {project.links.page ? (
+          <Link
+            href={project.links.page}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1.5 text-sm text-fg/80 transition-colors hover:text-fg"
+          >
+            View project <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+        ) : project.links.demo ? (
           <a
             href={project.links.demo}
             target="_blank"
@@ -75,6 +85,16 @@ export function ProjectCard({
             className="flex items-center gap-1.5 text-sm text-fg/80 transition-colors hover:text-fg"
           >
             Live demo <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        ) : project.links.paper ? (
+          <a
+            href={project.links.paper}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1.5 text-sm text-fg/80 transition-colors hover:text-fg"
+          >
+            Read paper <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
         ) : (
           <span className="flex items-center gap-1.5 text-sm text-fg/30">

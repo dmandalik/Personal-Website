@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Github, X } from "lucide-react";
 import type { Project } from "@/data/projects";
@@ -83,6 +84,15 @@ export function ProjectModal({
 
               {/* link buttons */}
               <div className="mt-5 flex flex-wrap gap-3">
+                {project.links.page && (
+                  <Link
+                    href={project.links.page}
+                    className="proj-demo flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-bg"
+                    style={{ background: project.accent }}
+                  >
+                    View project <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                )}
                 {project.links.demo ? (
                   <a
                     href={project.links.demo}
@@ -92,6 +102,15 @@ export function ProjectModal({
                     style={{ background: project.accent }}
                   >
                     Live demo <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                ) : project.links.paper ? (
+                  <a
+                    href={project.links.paper}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-lg border border-line bg-fg/[0.03] px-4 py-2 text-sm text-fg/80 transition-colors hover:text-fg"
+                  >
+                    Read paper <ArrowUpRight className="h-4 w-4" />
                   </a>
                 ) : (
                   <span className="rounded-lg border border-line bg-fg/[0.03] px-4 py-2 text-sm text-fg/40">
